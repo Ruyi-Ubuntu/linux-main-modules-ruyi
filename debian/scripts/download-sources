@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+	echo "Usage: $0 <source-package-directory>" 1>&2
+	exit 1
+fi
+src_bin="$1"
+
+mkdir -p "$src_bin"
+
+dkms_packages=$(grep -- -dkms debian/control | sed -e 's/,//')
+for package in $dkms_packages
+do
+	(cd "$src_bin" && apt-get download $package)
+done

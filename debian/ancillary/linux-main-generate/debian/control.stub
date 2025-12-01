@@ -1,0 +1,17 @@
+Source: @SRCPKGNAME@
+Section: kernel
+Priority: optional
+Maintainer: Canonical Kernel Team <kernel-team@lists.ubuntu.com>
+Build-Depends: debhelper (>= 9)
+Build-Depends-Arch:
+ @UNSIGNED_SRC@ (= @UNSIGNED_SRC_VERSION@),
+ python3,
+ python3-apt,
+ zstd,
+Standards-Version: 3.9.4
+
+Package: @SRCPKGNAME@
+Architecture: @INTERLOCK_ARCHS@
+Section: devel
+Priority: optional
+Description: Build interlock package. You do not want to install this package.

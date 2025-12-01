@@ -1,0 +1,25 @@
+Source: @SRCPKGNAME@
+Section: devel
+Priority: optional
+Maintainer: Canonical Kernel Team <kernel-team@lists.ubuntu.com>
+Standards-Version: 3.9.8
+Build-Depends:
+ dpkg (>= 1.13.19),
+ debhelper (>= 9),
+Build-Depends-Arch:
+ autoconf,
+ dkms,
+ fakeroot,
+ pkgconf,
+ python3,
+ wget,
+ zstd,
+@DKMS-DEPENDS@
+Vcs-Git: git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-main-modules/+git/@SERIES@
+
+Package: @SRCPKGNAME@
+Architecture: @ARCHS@
+Section: devel
+Priority: optional
+Description: Build interlock package. You do not want to install this package.
+

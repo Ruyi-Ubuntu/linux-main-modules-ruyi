@@ -1,0 +1,77 @@
+#!/usr/bin/make -f
+
+SHELL=/bin/bash -e
+
+DEBIAN=debian
+
+SERIES=$(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -SDistribution | sed -e 's/-\(security\|updates\|proposed\)$$//')
+SOURCE=$(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -SSource)
+
+VERSION=$(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -SVersion)
+KERNEL_ABI_VERSION=$(shell echo "$(VERSION)" | sed -ne 's/\([0-9]*\.[0-9]*\.[0-9]*\-[0-9]*\)\..*/\1/p')
+KERNEL_MAIN_VERSION=$(shell echo "$(VERSION)" | sed -e 's/\+[0-9][0-9]*$$//')
+KERNEL_META_VERSION=$(shell echo "$(KERNEL_ABI_VERSION)" | sed -e 's/-/./')
+
+DEB_HOST_ARCH=$(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+GENERATE_PACKAGE=$(shell echo "$(SOURCE)" | sed -e 's/-main-modules/-main-generate/')
+SIGNED_PACKAGE=$(shell echo "$(SOURCE)" | sed -e 's/-main-modules/-main-signed/')
+SIGNED_PACKAGE_VERSION=$(VERSION)
+TARGET_ARCHS=$(shell python3 ./debian/scripts/flavour_finder.py)
+
+
+clean: debian/control
+	dh_testdir
+	dh_testroot
+	rm -rf debian/tmp SIGNING BUILD staging_dir
+	./debian/scripts/parameterise-ancillaries $(GENERATE_PACKAGE) $(SIGNED_PACKAGE)
+	dh_clean
+
+debian/control:
+	sed <$(DEBIAN)/control.stub >debian/control			\
+		-e 's/@SERIES@/$(SERIES)/g'				\
+		-e 's/@KERNEL_ABI_VERSION@/$(KERNEL_ABI_VERSION)/g'	\
+		-e 's/@SRCPKGNAME@/$(SOURCE)/g'				\
+		-e 's/@KERNEL_MAIN_VERSION@/$(KERNEL_MAIN_VERSION)/g'	\
+		-e 's/@KERNEL_META_VERSION@/$(KERNEL_META_VERSION)/g' \
+		-e 's/@ARCHS@/$(TARGET_ARCHS)/g'
+	python3 $(CURDIR)/debian/scripts/dkms-prerequisites.py "$(KERNEL_ABI_VERSION)" "$(KERNEL_MAIN_VERSION)" || true
+
+
+.PHONY: debian/control
+
+%:
+	dh $@
+
+
+override_dh_auto_build: signing = $(CURDIR)/SIGNING
+override_dh_auto_build: signingv = $(signing)/$(VERSION)
+override_dh_auto_build: signing_tar = $(SOURCE)_$(VERSION)_$(DEB_HOST_ARCH).tar.gz
+override_dh_auto_build: deb_pkg = $(SOURCE)
+override_dh_auto_build: dkmstree = $(CURDIR)/BUILD
+override_dh_auto_build:
+	install -d $(signingv)/control
+	{ echo "tarball"; } >$(signingv)/control/options
+
+	@echo "v- DKMS packages"
+	dkms status
+	@echo "^- DKMS packages"
+	@echo "v- DKMS build manual packages"
+	python3 $(CURDIR)/debian/scripts/build-manual-packages.py "$(DEB_HOST_ARCH)"
+	@echo "^- DKMS build manual packages"
+	@echo "v- Archiving in temporary directory"
+	# XXX ALE: Still need to figure out if we really need both ABI and VERSION
+	python3 $(CURDIR)/debian/scripts/dkms-archive.py "$(DEB_HOST_ARCH)" "$(VERSION)" "$(signing)" "$(KERNEL_ABI_VERSION)"
+	@echo "^- Archiving in temporary directory"
+	@echo "v- signables"
+	ls -R $(signing)
+	@echo "^- signables"
+	cd $(signing) && tar czvf ../../$(signing_tar) .
+	#dpkg-distaddfile $(signing_tar) raw-signing -
+
+override_dh_install: signing_tar = $(SOURCE)_$(VERSION)_$(DEB_HOST_ARCH).tar.gz
+override_dh_install: 
+	mkdir -p $(CURDIR)/debian/$(SOURCE)/opt/linux-main-modules/
+	echo "$(CURDIR)/$(signing_tar)" > $(CURDIR)/debian/$(SOURCE)/install
+	cp ../$(signing_tar) $(CURDIR)/debian/$(SOURCE)/opt/linux-main-modules/
+	dh_install

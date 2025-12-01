@@ -1,0 +1,159 @@
+linux-main-modules (6.8.0-88.89+92) noble; urgency=medium
+
+  * Rename the tarball to make it compliant with the HSM naming structure
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Tue, 10 Feb 2026 09:01:55 +0100
+
+linux-main-modules (6.8.0-88.89+91) noble; urgency=medium
+
+  * Fixup missing cleanup in Launchpad
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Mon, 09 Feb 2026 19:53:24 +0100
+
+linux-main-modules (6.8.0-88.89+90) noble; urgency=medium
+
+  * Let's try to add generate in the middle
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Mon, 09 Feb 2026 18:12:13 +0100
+
+linux-main-modules (6.8.0-88.89+89) noble; urgency=medium
+
+  * Add forgotten minimum ABI in d/control
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Sun, 08 Feb 2026 19:37:43 +0100
+
+linux-main-modules (6.8.0-88.89+88) noble; urgency=medium
+
+  * Greatly simplify the archive procedure
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Sun, 08 Feb 2026 10:54:28 +0100
+
+linux-main-modules (6.8.0-88.89+87) noble; urgency=medium
+
+  * Add version of the dkms module in the Provides metadata field
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Fri, 06 Feb 2026 11:52:13 +0100
+
+linux-main-modules (6.8.0-88.89+86) noble; urgency=medium
+
+  * Remove unknown information fields, probably filled by LP
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Fri, 06 Feb 2026 11:33:02 +0100
+
+linux-main-modules (6.8.0-88.89+85) noble; urgency=medium
+
+  * Add forgotten Source and Origin metadata
+  * Fix description to be equal to the original one created by linux-meta
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Fri, 06 Feb 2026 11:25:51 +0100
+
+linux-main-modules (6.8.0-88.89+84) noble; urgency=medium
+
+  * Add the forgotten "Provides" field in d/control for the pyisical packages
+  * Add doca-ofed to check for hybrid builds in arm64
+  * Moved v4l2loopback in Build-Depends mode to try hybrid build in amd64
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Thu, 05 Feb 2026 14:54:58 +0100
+
+linux-main-modules (6.8.0-88.89+83) noble; urgency=medium
+
+  * Fix issue in copy stage where arch is not taken into consideration
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 04 Feb 2026 21:54:05 +0100
+
+linux-main-modules (6.8.0-88.89+82) noble; urgency=medium
+
+  * Another quick fix
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 04 Feb 2026 21:20:55 +0100
+
+linux-main-modules (6.8.0-88.89+81) noble; urgency=medium
+
+  * Add forgottedn zstd dependency
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 04 Feb 2026 20:30:17 +0100
+
+linux-main-modules (6.8.0-88.89+80) noble; urgency=medium
+
+  * Trying to fix a glob issue working locally but not on Launchpad
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 04 Feb 2026 17:46:23 +0100
+
+linux-main-modules (6.8.0-88.89+79) noble; urgency=medium
+
+  * Change standard staging_dir as launchpad doesn't like /tmp
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 04 Feb 2026 17:11:44 +0100
+
+linux-main-modules (6.8.0-88.89+78) noble; urgency=medium
+
+  * Removed unused request python import
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 04 Feb 2026 16:46:40 +0100
+
+linux-main-modules (6.8.0-88.89+77) noble; urgency=medium
+
+  * Add a functionality to manually build modules by downloading them
+  * Set a couple of modules in manual download mode
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 04 Feb 2026 16:22:28 +0100
+
+linux-main-modules (6.8.0-88.89+76) noble; urgency=medium
+
+  * Forgot to bump doca-ofed-25.10 version in dkms-version
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 28 Jan 2026 16:53:22 +0100
+
+linux-main-modules (6.8.0-88.89+75) noble; urgency=medium
+
+  * Rename the metapackages from linux-M-F-V to linux-modules-M-F-V
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 28 Jan 2026 15:56:56 +0100
+
+linux-main-modules (6.8.0-88.89+74) noble; urgency=medium
+
+  * Add a check if an architecture isn't expecting any module in signed land
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Wed, 28 Jan 2026 10:29:07 +0100
+
+linux-main-modules (6.8.0-88.89+73) noble; urgency=medium
+
+  * Fix dkms repackaging in linux-modules-signed, naming logic was too simple
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Mon, 26 Jan 2026 18:12:02 +0100
+
+linux-main-modules (6.8.0-88.89+72) noble; urgency=medium
+
+  * Fix leading whitespace issue in dkms.conf parsing
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Mon, 26 Jan 2026 15:55:06 +0100
+
+linux-main-modules (6.8.0-88.89+71) noble; urgency=medium
+
+  * Update v4l2loopback version as a newer one has been uploaded
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Mon, 26 Jan 2026 14:48:26 +0100
+
+linux-main-modules (6.8.0-88.89+70) noble; urgency=medium
+
+  * Try to add doca-ofed-25.10 to test the doca DKMSs are correctly stored
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Mon, 26 Jan 2026 14:30:13 +0100
+
+linux-main-modules (6.8.0-88.89+69) noble; urgency=medium
+
+  * As expected previous failed for overlapping version, try a totally new one
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Fri, 16 Jan 2026 16:58:01 +0100
+
+linux-main-modules (6.8.0-88.89+66) noble; urgency=medium
+
+  * Let's try ancillaries and see what happens
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Thu, 15 Jan 2026 14:37:15 +0100
+
+linux-main-modules (6.8.0-88.89+65) noble; urgency=medium
+
+  * This time try to generate the right stuff for multiple archs
+
+ -- Alessio Faina <alessio.faina@canonical.com>  Thu, 26 Nov 2025 16:13:07 +0100

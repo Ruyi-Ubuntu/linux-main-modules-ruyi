@@ -1,0 +1,46 @@
+#! /usr/bin/make -f
+
+SOURCE=$(shell dpkg-parsechangelog -S Source)
+VERSION=$(shell dpkg-parsechangelog -S Version)
+ABI=$(shell echo "$(VERSION)" | sed -ne 's/\([0-9]*\.[0-9]*\.[0-9]*\-[0-9]*\)\..*/\1/p')
+DEB_HOST_ARCH=$(shell dpkg-architecture -qDEB_HOST_ARCH)
+# Work out the source package name and version of the unsigned package
+# By convention, it is the name of this package with -signed stripped.
+# The version is required to be identical to this package.
+# Remember the kernel variant (i.e. linux-restricted-generate-ibm-6.8) is at the end
+UNSIGNED_SRC=$(shell echo $(SOURCE) | sed -e's/linux-main-generate/linux-main-modules/' -e 's/-generate//')
+UNSIGNED_VER=$(VERSION)
+TARGET_ARCHS=$(shell python3 ./debian/scripts/flavour_finder.py)
+
+clean: debian/control
+	dh_testdir
+	dh_testroot
+	rm -rf ./$(UNSIGNED_VER)
+	dh_clean
+
+debian/control:
+	sed <debian/control.stub >debian/control		\
+		-e "s/@ABI@/$(ABI)/g"				\
+		-e "s/@UNSIGNED_SRC@/$(UNSIGNED_SRC)/g"	\
+		-e "s/@UNSIGNED_SRC_VERSION@/$(UNSIGNED_VER)/g"	\
+		-e 's/@SRCPKGNAME@/$(SOURCE)/g' \
+		-e 's/@INTERLOCK_ARCHS@/$(TARGET_ARCHS)/g'
+
+.PHONY: debian/control
+
+%:
+	dh $@
+
+override_dh_auto_build: signing = $(CURDIR)/SIGNING
+override_dh_auto_build: signingv = $(signing)/$(VERSION)
+override_dh_auto_build:
+	install -d $(signingv)/control
+	{ echo "tarball"; } >$(signingv)/control/options
+
+	$(eval SOURCE_TAR_NAME := $(shell echo $(SOURCE)_$(VERSION)_$(DEB_HOST_ARCH).tar.gz | sed 's/linux-main-generate/linux-main-modules/'))
+	$(eval SIGNING_TAR_PATH := $(shell find /opt/linux-main-modules/$(SOURCE_TAR_NAME) -type f | head -n 1))
+	@echo "----- DEBUG -----> Looking for $(SIGNING_TAR_PATH)"
+	$(eval SIGNING_TAR_NAME := $(shell echo "$(notdir $(SIGNING_TAR_PATH))" | sed 's/linux-main-modules/linux-main-generate/'))
+	@echo "----- DEBUG -----> Copying $(SIGNING_TAR_PATH) in ../$(SIGNING_TAR_NAME)"
+	cp $(SIGNING_TAR_PATH) ../$(SIGNING_TAR_NAME)
+	dpkg-distaddfile $(SIGNING_TAR_NAME) raw-signing -

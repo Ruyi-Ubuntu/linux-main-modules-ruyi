@@ -1,0 +1,26 @@
+#!/bin/bash
+
+log="$1"
+shift
+
+watcher()
+{
+	local log="$1"
+
+	while [ ! -f "$log" ]
+	do
+		echo "Waiting for $log ..."
+		sleep 2
+	done
+	echo "Log $log present ..."
+	exec tail -f "$log"
+}
+
+watcher "$log" &
+watcher_pid="$!"
+
+"$@"
+rc="$?"
+kill "$watcher_pid"
+
+exit "$rc"

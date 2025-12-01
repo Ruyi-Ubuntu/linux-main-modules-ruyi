@@ -1,0 +1,61 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import json
+from shutil import copy
+from textwrap import dedent, indent
+
+
+def build_changelog(outd, source_name):
+    # Convert debian/changelog: fix the package names and limit to 5 stanzas.
+    in_changelog = os.path.join("debian", "changelog")
+    out_changelog = os.path.join(outd, "debian", "changelog")
+    with open(in_changelog) as ifd, open(out_changelog, "w") as ofd:
+        first = True
+        stanza = 0
+        for line in ifd:
+            if line[0] not in (" ", "\n"):
+                stanza += 1
+                first = True
+                if stanza == 6:
+                    break
+            if first:
+                bits = line.split()
+                bits[0] = source_name
+                print(" ".join(bits), file=ofd)
+                first = False
+            else:
+                print(line, end="", file=ofd)
+
+# Build one of the ancillaries.
+def build_ancillary(family, package):
+    for outd in (
+        os.path.join("debian", "ancillary", package),
+        os.path.join("debian", "ancillary", family),
+    ):
+        if os.path.exists(outd):
+            break
+    else:
+        print(f"ERROR: {outd} directory not found", file=sys.stderr)
+        sys.exit(1)
+
+    os.makedirs(os.path.join(outd, "debian"), exist_ok=True)
+    build_changelog(outd, package)
+    for file in (
+        os.path.join("debian", "compat"),
+        os.path.join("debian", "copyright"),
+        os.path.join("debian", "dkms-versions"),
+        os.path.join("debian", "package.config"),
+        os.path.join("debian", "variants"),
+        os.path.join("debian", "scripts", "dkms_helper.py"),
+        os.path.join("debian", "scripts", "flavour_finder.py"),
+    ):
+        os.makedirs(os.path.dirname(os.path.join(outd, file)), exist_ok=True)
+        copy(file, os.path.join(outd, file))
+
+
+(sig_pkg) = sys.argv[1:]
+
+build_ancillary("linux-main-generate", sig_pkg[0])
+build_ancillary("linux-main-signed", sig_pkg[1])

@@ -1,0 +1,49 @@
+#! /usr/bin/make -f
+
+SOURCE=$(shell dpkg-parsechangelog -S Source)
+VERSION=$(shell dpkg-parsechangelog -S Version)
+ABI=$(shell echo "$(VERSION)" | sed -ne 's/\([0-9]*\.[0-9]*\.[0-9]*\-[0-9]*\)\..*/\1/p')
+DEB_HOST_ARCH=$(shell dpkg-architecture -qDEB_HOST_ARCH)
+# Work out the source package name and version of the unsigned package
+# By convention, it is the name of this package with -signed stripped.
+# The version is required to be identical to this package.
+# Remember the kernel variant (i.e. linux-restricted-generate-ibm-6.8) is at the end
+UNSIGNED_SRC=$(shell echo $(SOURCE) | sed -e's/linux-main-signed/linux-main-generate/')
+UNSIGNED_VER=$(VERSION)
+# Keep them here for debugging sake
+#ABI=6.8.0-88
+#UNSIGNED_VER=6.8.0-88.89+65
+TARGET_ARCHS=$(shell python3 ./debian/scripts/flavour_finder.py)
+
+clean: debian/control
+	dh_testdir
+	dh_testroot
+	rm -rf ./$(UNSIGNED_VER)
+	dh_clean
+
+debian/control:
+	# XXX: Ale need to figure out if want to use version or ABI
+	python3 $(CURDIR)/debian/scripts/control_craft.py \
+		"$(DEB_HOST_ARCH)" \
+		"$(ABI)"
+	sed <debian/control.stub.tmp >debian/control		\
+		-e "s/@ABI@/$(ABI)/g"				\
+		-e "s/@UNSIGNED_SRC@/$(UNSIGNED_SRC)/g"	\
+		-e "s/@UNSIGNED_SRC_VERSION@/$(UNSIGNED_VER)/g"	\
+		-e 's/@SRCPKGNAME@/$(SOURCE)/g' \
+		-e 's/@INTERLOCK_ARCHS@/$(TARGET_ARCHS)/g'
+	rm ${CURDIR}/debian/control.stub.tmp
+
+.PHONY: debian/control
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	./download-signed "$(UNSIGNED_SRC)" "$(UNSIGNED_VER)" "$(UNSIGNED_SRC)"
+
+override_dh_auto_install:
+	$(CURDIR)/debian/scripts/auto_install.py "$(DEB_HOST_ARCH)" "$(UNSIGNED_VER)" "$(ABI)"
+	ls
+	ls debian
+	dh_install
