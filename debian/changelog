@@ -1,4 +1,4 @@
-linux-main-modules (6.8.0-88.89+92) noble; urgency=medium
+linux-main-modules-unstable (7.0.0-0.0) resolute; urgency=medium
 
   * Rename the tarball to make it compliant with the HSM naming structure
 
