@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python3 -B
 
 import errno
 import glob

@@ -4,6 +4,8 @@ SHELL=/bin/bash -e
 
 DEBIAN=debian
 
+export PYTHONDONTWRITEBYTECODE := 1
+
 SERIES=$(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -SDistribution | sed -e 's/-\(security\|updates\|proposed\)$$//')
 SOURCE=$(shell dpkg-parsechangelog -l$(DEBIAN)/changelog -SSource)
 

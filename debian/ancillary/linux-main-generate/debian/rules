@@ -1,5 +1,7 @@
 #! /usr/bin/make -f
 
+export PYTHONDONTWRITEBYTECODE := 1
+
 SOURCE=$(shell dpkg-parsechangelog -S Source)
 VERSION=$(shell dpkg-parsechangelog -S Version)
 ABI=$(shell echo "$(VERSION)" | sed -ne 's/\([0-9]*\.[0-9]*\.[0-9]*\-[0-9]*\)\..*/\1/p')
