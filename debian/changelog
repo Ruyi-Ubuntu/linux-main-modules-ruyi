@@ -1,3 +1,10 @@
+linux-main-modules-unstable (7.0.0-2.2+1) resolute; urgency=medium
+
+  * Miscellaneous upstream changes
+    - Fix synthetic invalid status in proposed promotion
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Fri, 27 Feb 2026 18:37:31 +0100
+
 linux-main-modules-unstable (7.0.0-2.2) resolute; urgency=medium
 
   * Main version: 7.0.0-2.2
