@@ -1,3 +1,18 @@
+linux-main-modules-unstable (7.0.0-2.2) resolute; urgency=medium
+
+  * Main version: 7.0.0-2.2
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] update variants
+    - [Packaging] debian/tracking-bug -- resync from main package
+    - [Packaging] debian/dkms-versions -- update from kernel-versions
+      (main/d2026.02.26)
+
+  * Miscellaneous Ubuntu changes
+    - [packaging] bump to 7.0 and resolute
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Fri, 27 Feb 2026 10:31:00 +0100
+
 linux-main-modules-unstable (7.0.0-0.0) resolute; urgency=medium
 
   * Rename the tarball to make it compliant with the HSM naming structure
