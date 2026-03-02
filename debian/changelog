@@ -1,3 +1,14 @@
+linux-main-modules-unstable (7.0.0-3.3) resolute; urgency=medium
+
+  * Main version: 7.0.0-3.3
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] debian/tracking-bug -- resync from main package
+    - [Packaging] debian/dkms-versions -- update from kernel-versions
+      (main/d2026.03.02)
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Mon, 02 Mar 2026 09:29:17 +0100
+
 linux-main-modules-unstable (7.0.0-2.2+1) resolute; urgency=medium
 
   * Miscellaneous upstream changes
