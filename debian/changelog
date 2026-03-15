@@ -1,3 +1,11 @@
+linux-main-modules (7.0.0-7.7+1) resolute; urgency=medium
+
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Build also on armhf, ppc64el, s390x
+
+ -- Timo Aaltonen <timo.aaltonen@canonical.com>  Sun, 15 Mar 2026 15:15:11 +0200
+
 linux-main-modules (7.0.0-7.7) resolute; urgency=medium
 
   * Main version: 7.0.0-7.7
