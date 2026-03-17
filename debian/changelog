@@ -1,3 +1,17 @@
+linux-main-modules (7.0.0-8.8) resolute; urgency=medium
+
+  * Main version: 7.0.0-8.8
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] debian/tracking-bug -- resync from main package
+    - [Packaging] debian/dkms-versions -- update from kernel-versions
+      (main/d2026.03.17)
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Drop armhf, it's not building anything useful
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Tue, 17 Mar 2026 18:03:05 +0100
+
 linux-main-modules (7.0.0-7.7+1) resolute; urgency=medium
 
 
