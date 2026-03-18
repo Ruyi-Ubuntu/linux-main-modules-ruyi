@@ -43,7 +43,7 @@ class dkms_item:
     def getProvidedDkms(self):
         provides = ""
         for p in self.rprovides:
-            provides += p + " (= " + self.version + "), "
+            provides += p + ", "
         return provides.strip().rstrip(',')
 
     def addModuleName(self, modulename):
