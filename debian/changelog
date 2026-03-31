@@ -1,3 +1,18 @@
+linux-main-modules (7.0.0-11.11) resolute; urgency=medium
+
+  * Main version: 7.0.0-11.11
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] update variants
+    - [Packaging] debian/tracking-bug -- resync from main package
+    - [Packaging] debian/dkms-versions -- update from kernel-versions
+      (main/d2026.03.30)
+
+  * Miscellaneous upstream changes
+    - Remove version in Provides field in the linux-signed package
+
+ -- Paolo Pisati <paolo.pisati@canonical.com>  Tue, 31 Mar 2026 15:34:37 +0200
+
 linux-main-modules (7.0.0-10.10) resolute; urgency=medium
 
   * Main version: 7.0.0-10.10
