@@ -1,3 +1,9 @@
+linux-main-modules (7.0.0-12.12) resolute; urgency=medium
+
+  * Main version: 7.0.0-12.12
+
+ -- Timo Aaltonen <timo.aaltonen@canonical.com>  Thu, 02 Apr 2026 10:43:09 +0300
+
 linux-main-modules (7.0.0-11.11) resolute; urgency=medium
 
   * Main version: 7.0.0-11.11
