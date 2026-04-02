@@ -47,10 +47,21 @@ def find_path_build_depends_kos(module, kernel_abi: str, kernel_flavour: str):
             "*",
             "module"
     )
+    dkms_build_pattern_noname = os.path.join(
+            "/var/lib/dkms/",
+            module.module,
+            "*",
+            kernel_abi + "-" + kernel_flavour,
+            "*",
+            "module"
+    )
 
+    print(f"DDD: Matching patterns: {dkms_build_pattern} / {dkms_build_pattern_noname}")
     matches = glob.glob(dkms_build_pattern)
     if not matches:
-        raise OSError("Could not find DKMS build artifacts at: " + dkms_build_pattern)
+        matches = glob.glob(dkms_build_pattern_noname)
+        if not matches:
+            raise OSError("Could not find DKMS build artifacts at: " + dkms_build_pattern)
     build_dir = matches[0]
     return build_dir
 
