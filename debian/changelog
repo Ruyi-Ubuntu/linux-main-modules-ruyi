@@ -1,3 +1,17 @@
+linux-main-modules-riscv (7.0.0-12.12.1) resolute; urgency=medium
+
+  * Main version: 7.0.0-12.12.1
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] debian/dkms-versions -- update from kernel-versions
+      (main/d2026.03.30)
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging] Initial configuration of resolute:linux-riscv
+    - [Packaging] Fix dependency name for linux-riscv
+
+ -- Sarah Emery <sarah.emery@canonical.com>  Tue, 07 Apr 2026 15:45:29 +0200
+
 linux-main-modules-riscv (7.0.0-12.12.0) resolute; urgency=medium
 
   * Main version: 7.0.0-12.12.0
