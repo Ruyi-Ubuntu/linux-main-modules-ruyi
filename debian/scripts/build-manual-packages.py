@@ -262,6 +262,12 @@ def print_dkms_build_log(module_name: str, module_version: str, kernel: str):
         print("")
         print("")
 
+def should_skip(module, kernel):
+    for flavour_to_skip in module.skip_flavours:
+        if kernel.endswith(flavour_to_skip):
+            return True
+    return False
+
 
 def build_dkms_in_fakeroot(module):
     kernels = get_installed_kernels()
@@ -275,6 +281,9 @@ def build_dkms_in_fakeroot(module):
     my_env["CONFIG_MODULE_SIG_ALL"] = "n"
 
     for kernel in kernels:
+        if should_skip(module, kernel):
+            print(f"DDD: Skipping module:{module_name} for kernel:{kernel}")
+            continue
         print("DDD --- Build " +  module_name + "-" + module_version + " - Kernel: " + kernel)
         dkms_build_command = ["dkms", "build",
                             "-m", module_name,

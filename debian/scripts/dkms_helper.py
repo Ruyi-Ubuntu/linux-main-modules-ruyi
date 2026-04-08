@@ -23,6 +23,9 @@ class dkms_item:
         self.debpath = ""
         self.apt_dkms = ""
         self.arch = []
+        # Flavour skipping works only with off_series packages, as in-series
+        # are automatically built as part of the apt-install process
+        self.skip_flavours = []
         self.rprovides = []
         # DEFAULT = FALSE
         # If True, manually download the .deb from a specified pool
@@ -52,6 +55,9 @@ class dkms_item:
     def addArch(self, arch):
         self.arch.append(arch)
 
+    def addSkipFlavours(self, flavour):
+        self.skip_flavours.append(flavour)
+
     def addRprovides(self, rprovides):
         self.rprovides.append(rprovides)
 
@@ -80,6 +86,10 @@ class dkms_item:
         for item in self.rprovides:
             tmp += item + " "
         print("rprovides: " + tmp)
+        tmp = ""
+        for item in self.skip_flavours:
+            tmp += item + " "
+        print("skip_flavours: " + tmp)
         print("debpath: " + self.debpath)
         print("apt_dkms: " + self.apt_dkms)
         print("needs_off_series: " + str(self.needs_off_series))
@@ -141,6 +151,8 @@ class dkms_modules:
                 tmp.addRprovides(parm.split("=")[1].replace("\n",""))
             elif parm.startswith("debpath="):
                 tmp.addDebPath(parm.split("=")[1].replace("\n",""))
+            elif parm.startswith("skip_flavour="):
+                tmp.addSkipFlavours(parm.split("=")[1].replace("\n",""))
             elif parm.startswith("off_series="):
                 status = parm.split("=")[1].replace("\n","")
                 if status.lower() == 'true':

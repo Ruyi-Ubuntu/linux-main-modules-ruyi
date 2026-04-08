@@ -83,6 +83,9 @@ def create_new_packages(modules, kernel_arch: str,
     full_template = "\n"
     for kernel_flavour in kernel_flavours:
         for item in modules.items:
+            if kernel_flavour in item.skip_flavours:
+                print(f"Skipping {item.modulename} for {kernel_flavour}")
+                continue
             archs = intersect_archs(kernel_flavour.archs, item.arch)
             # If no architectures in common between DKMS and flavour, just skip
             if archs == "":

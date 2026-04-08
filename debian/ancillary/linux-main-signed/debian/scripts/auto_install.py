@@ -60,8 +60,25 @@ def get_module_name_from_directory(dir_name: str):
         return dir_name.split("-")[0]
     return dir_name
 
+
+def expected_modules_for_flavour(flavour: str) -> bool:
+    total = 0
+    kernel_modules = dkms_modules()
+    kernel_modules.parse_dkms_version_file()
+    for module in kernel_modules.items:
+        if flavour in module.skip_flavours:
+            continue
+        total = total + 1
+    if total == 0:
+        return False
+    return True
+
+
 def copy_files(version: str, abi:str, flavour: str):
     modules_to_install = []
+    # Might not have anything to install
+    if not expected_modules_for_flavour(flavour):
+        return modules_to_install
     # If this fails, something went really wrong during upstream signing
     folders = os.listdir(version + "/" + flavour)
     for folder in folders:
