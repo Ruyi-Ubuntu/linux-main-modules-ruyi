@@ -16,7 +16,7 @@ def insert_requirements_in_control_file(modules, kernel_abi_version: str,
                                         kernel_main_version:str, flavours: List[str]):
     res = ""
     for flavour in flavours:
-        res += " linux-" + flavour.flavour + "-headers-" + kernel_abi_version
+        res += " linux-headers-" + kernel_abi_version + "-" + flavour.flavour
         res += " (>= " + kernel_main_version + ") "
         res += " ["
         archs_size = len(flavour.archs)
