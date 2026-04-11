@@ -36,7 +36,7 @@ def append_module_in_debian_install(module_name: str, module: str,
     print(package + ": adding " + module + " [" + module_full_path + "]")
     with open("debian/" + package + ".install", "a") as deb_install_file:
         entry = module_full_path + " "
-        entry += "/lib/modules/" + abi + "-" + flavour + "/kernel/" + module_name + "\n"
+        entry += "/usr/lib/modules/" + abi + "-" + flavour + "/kernel/" + module_name + "\n"
         deb_install_file.write(entry)
 
 

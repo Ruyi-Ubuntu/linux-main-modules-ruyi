@@ -185,14 +185,84 @@ def add_dkms_to_fakeroot(module):
     return True
 
 
-def get_installed_kernels():
-    path='/lib/modules'
+def lib_symlink_exists() -> bool:
+    path = "/lib/modules"
     if not os.path.exists(path):
-        return []
+        return False
+    return True
 
-    return [
-        k for k in os.listdir(path)
-        if os.path.isdir(os.path.join(path, k, 'build'))]
+
+def usr_lib_modules_exists() -> bool:
+    path = "/usr/lib/modules"
+    if not os.path.exists(path):
+        return False
+    return True
+
+
+def usr_src_exists() -> bool:
+    path = "/usr/src"
+    if not os.path.exists(path):
+        return False
+    return True
+
+
+def is_valid_usr_src_kernel(kernel: str) -> bool:
+    if not "linux-headers-" in kernel:
+        return False
+    config_path = os.path.join("/usr/src/", kernel, ".config")
+    if os.path.isfile(config_path):
+        return True
+    return False
+
+
+def get_installed_kernels():
+    base_path = "/lib/modules"
+    if not lib_symlink_exists():
+        print("EEE: No /lib/modules folder?????")
+        base_path = "/usr/lib/modules"
+        if not usr_lib_modules_exists():
+            print("EEE: No /usr/lib/modules folder either?????")
+            base_path = "/usr/src" 
+            if not usr_src_exists():
+                print("EEE: No /usr/src folder...giving up")
+                raise OSError("Can't proceed, just fully FAIL")
+
+    print(f"DDD: using path {base_path}")
+    kernels_with_build = []
+    debug_print_usr_src = False
+    for k in os.listdir(base_path):
+        if base_path == "/usr/src":
+            if not is_valid_usr_src_kernel(k):
+                print(f"DDD: {k} not a valid kernel folder")
+                continue
+
+        full_path = os.path.join(base_path, k)
+        if base_path == "/usr/src":
+            build_link = full_path
+            source_dir = full_path
+        else:
+            build_link = os.path.join(full_path, 'build')
+            source_dir = os.path.join("/usr/src/", "linux-headers-" + k)
+
+        if os.path.isdir(build_link):
+            kernels_with_build.append(k)
+            print(f"[OK] Found kernel {k}, adding to buildspec")
+        else:
+            print(f"[WARNING] Found kernel {k}, but 'build' folder is missing or broken.")
+            debug_print_usr_src = True
+            if os.path.isdir(source_dir):
+                print(f"  --> Strange, {source_dir} exists. Link has not been correctly created?")
+
+    if debug_print_usr_src:
+        print("")
+        print("==================")
+        print("DDD: Printing all in /usr/src")
+        for source in os.listdir("/usr/src"):
+            print(f"DDD: Found source {source}")
+        print("==================")
+        print("")
+
+    return kernels_with_build
 
 
 def relocate_modules(fakeroot: str, module_name: str, module_version: str,
@@ -281,6 +351,9 @@ def build_dkms_in_fakeroot(module):
     my_env["CONFIG_MODULE_SIG_ALL"] = "n"
 
     for kernel in kernels:
+        # /usr/src corner case
+        if "linux-headers-" in kernel:
+            kernel = kernel.strip("linux-headers-")
         if should_skip(module, kernel):
             print(f"DDD: Skipping module:{module_name} for kernel:{kernel}")
             continue
@@ -290,6 +363,19 @@ def build_dkms_in_fakeroot(module):
                             "-v", module_version,
                             "--dkmstree", get_fake_dkms_root_folder(),
                             "-k", kernel  ]
+
+        if not lib_symlink_exists():
+            if usr_lib_modules_exists():
+                headers_path = "/usr/lib/modules/" + kernel + "/build/"
+            elif usr_src_exists():
+                headers_path = "/usr/src/linux-headers-" + kernel
+            else:
+                print("EEE: I cannot be here")
+                raise OSError("I shouldn't be here, should have failed before")
+            print(f"WWW: Headers cannot be found in /lib, using {headers_path}")
+            dkms_build_command.append("--kernelsourcedir")
+            dkms_build_command.append(headers_path)
+
         try:
             subprocess.run(dkms_build_command, check=True, env=my_env)
             relocate_modules(get_manual_dkms_output_folder(),
