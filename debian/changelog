@@ -1,3 +1,9 @@
+linux-main-modules-riscv (7.0.0-12.12.1+2) resolute; urgency=medium
+
+  * Fix back headers requisites generation, fix flavour in package.config
+
+ -- Sarah Emery <sarah.emery@canonical.com>  Mon, 13 Apr 2026 13:28:18 +0200
+
 linux-main-modules-riscv (7.0.0-12.12.1+1) resolute; urgency=medium
 
   * Fix dependency name for linux-riscv
