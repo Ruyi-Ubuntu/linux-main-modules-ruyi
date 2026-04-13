@@ -21,5 +21,7 @@ Package: @SRCPKGNAME@
 Architecture: @ARCHS@
 Section: devel
 Priority: optional
+Depends:
+@SYNTHETIC-DEPENDS@
 Description: Build interlock package. You do not want to install this package.
 
