@@ -1,3 +1,24 @@
+linux-main-modules-riscv (7.0.0-14.14.1) resolute; urgency=medium
+
+  * Main version: 7.0.0-14.14.1
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] debian/tracking-bug -- resync from main package
+
+  * Miscellaneous upstream changes
+    - Cleanup d/package.config from LRM config options
+    - lmm: cleanup and add copyright notice
+    - lmm: Fix an issue for the in-series copy phase
+    - lmm: move final artifacts from /ubuntu to /kernel
+    - lmm: Allow skipping specific DKMS for specific flavours at build time
+    - lmm: Fix DKMS build for chroot environments
+    - lmm: Add synthetic dependency for LMM package, to stop early promotion
+    - lmm: Process all modules and fail only at the end if any failed
+    - Revert "lmm: Add synthetic dependency for LMM package, to stop early
+      promotion"
+
+ -- Sarah Emery <sarah.emery@canonical.com>  Tue, 14 Apr 2026 15:38:35 +0200
+
 linux-main-modules-riscv (7.0.0-12.12.1+2) resolute; urgency=medium
 
   * Fix back headers requisites generation, fix flavour in package.config
