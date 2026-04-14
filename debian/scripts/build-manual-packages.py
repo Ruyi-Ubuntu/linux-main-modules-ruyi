@@ -428,6 +428,8 @@ def build_dkms_module(module):
 
 
 def build_manual_modules_for_arch(architecture: str):
+    finalResult = True
+    failedModules = []
     os.makedirs(get_fake_dkms_root_folder(), exist_ok=True)
     os.makedirs(get_manual_dkms_build_folder(), exist_ok=True)
     os.makedirs(get_manual_dkms_output_folder(), exist_ok=True)
@@ -439,8 +441,20 @@ def build_manual_modules_for_arch(architecture: str):
         print("DDD - Building " +  module.modulename)
         result = build_dkms_module(module)
         if not result:
-            return False
-    return True
+            print(f"EEE: module {module.modulename} FAILED")
+            failedModules.append(module)
+            finalResult = False
+
+    if not finalResult:
+        print("")
+        print("")
+        print("=================== FAILED MODULES LIST ======================")
+        for module in failedModules:
+            print(f"EEE: module {module.modulename} FAILED")
+        print("=================== FAILED MODULES LIST ======================")
+        print("")
+        print("")
+    return finalResult
 
 
 ########### MAIN CALL ####################
