@@ -12,12 +12,11 @@ else:
 from dkms_helper import dkms_modules
 from flavour_finder import find_flavours
 
-def create_depends_from_prefix(module_prefix:str, kernel_abi_version: str,
-                               kernel_main_version:str, flavours: List[str]) -> str:
+def insert_requirements_in_control_file(modules, kernel_abi_version: str,
+                                        kernel_main_version:str, flavours: List[str]):
     res = ""
-    flavour_size = len(flavours)
-    for flavour_number, flavour in enumerate(flavours):
-        res += " " + module_prefix + kernel_abi_version + "-" + flavour.flavour
+    for flavour in flavours:
+        res += " linux-headers-" + kernel_abi_version + "-" + flavour.flavour
         res += " (>= " + kernel_main_version + ") "
         res += " ["
         archs_size = len(flavour.archs)
@@ -25,40 +24,20 @@ def create_depends_from_prefix(module_prefix:str, kernel_abi_version: str,
             res += arch
             if i < archs_size - 1:
                 res += " "
-        if flavour_number < flavour_size - 1:
-            res += "],\n"
-        else:
-            res += "]"
-    return res
-
-def insert_requirements_in_control_file(modules, kernel_abi_version: str,
-                                        kernel_main_version:str, flavours: List[str]):
-    # Synthetic dependency to force the LMM package to not promote before the
-    # main kernel
-    res_synthetic_depends = create_depends_from_prefix("linux-modules-",
-                                                       kernel_abi_version,
-                                                       kernel_main_version,
-                                                       flavours)
-
-    # Headers dependencies for each flavour/architecture
-    res_build_depends = create_depends_from_prefix("linux-headers-",
-                                                   kernel_abi_version,
-                                                   kernel_main_version,
-                                                   flavours)
-
+        res += "],\n"
 
     prereqs = modules.return_prerequisites()
+
     if not prereqs == "":
-        res_build_depends += ", \n" + prereqs
+        res += prereqs
     else:
-        res_build_depends = res_build_depends.rstrip("\n").rstrip(",")
+        res = res.rstrip("\n").rstrip(",")
 
 
     final_control = ""
     with open("debian/control", "r") as src:
         control = src.read()
-        final_control = re.sub("@DKMS-DEPENDS@", res_build_depends, control)
-        final_control = re.sub("@SYNTHETIC-DEPENDS@", res_synthetic_depends, final_control)
+        final_control = re.sub("@DKMS-DEPENDS@", res, control)
     with open("debian/control.tmp", "w") as dst:
         dst.write(final_control)
     shutil.move("debian/control.tmp", "debian/control")
