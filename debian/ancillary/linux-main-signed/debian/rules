@@ -42,7 +42,13 @@ debian/control:
 	dh $@
 
 override_dh_auto_build:
-	./download-signed "$(UNSIGNED_SRC)" "$(UNSIGNED_VER)" "$(UNSIGNED_SRC)"
+	@if [ -z "$$LOCAL_SIGNED_LMM_DKMS_PATH" ]; then \
+		./download-signed "$(UNSIGNED_SRC)" "$(UNSIGNED_VER)" "$(UNSIGNED_SRC)"; \
+	else \
+		echo "Not downloading signed tarball as LOCAL_SIGNED_LMM_DKMS_PATH is set"; \
+		cp "$$LOCAL_SIGNED_LMM_DKMS_PATH"/signed.tar.gz . ; \
+		tar -xvf signed.tar.gz ; \
+	fi
 
 override_dh_auto_install:
 	$(CURDIR)/debian/scripts/auto_install.py "$(DEB_HOST_ARCH)" "$(UNSIGNED_VER)" "$(ABI)"
