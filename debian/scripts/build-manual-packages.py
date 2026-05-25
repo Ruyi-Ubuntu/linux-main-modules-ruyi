@@ -338,7 +338,6 @@ def should_skip(module, kernel):
             return True
     return False
 
-
 def build_dkms_in_fakeroot(module):
     kernels = get_installed_kernels()
     extracted_folder = get_module_extracted_directory(module)
@@ -349,6 +348,25 @@ def build_dkms_in_fakeroot(module):
     my_env = os.environ.copy()
     my_env["CONFIG_MODULE_SIG"] = "n"
     my_env["CONFIG_MODULE_SIG_ALL"] = "n"
+
+    # Cross compilation setup: this works only if the user has correctly set
+    # LMM_BUILD_ARCH, LMM_CROSS_NAME and LMM_CROSS_PREFIX in the environment
+    # Those are set by a script provided outside of this repo.
+    # e.g. for arm64, the script sets:
+    # LMM_BUILD_ARCH=arm64
+    # LMM_CROSS_NAME=arm64
+    # LMM_CROSS_PREFIX=aarch64-linux-gnu
+    native_arch = subprocess.check_output(
+        ["dpkg", "--print-architecture"], text=True).strip()
+    cross_kernel_arch = None
+    architecture = my_env.get("LMM_BUILD_ARCH", native_arch)
+    if architecture != native_arch:
+        cross_kernel_arch = my_env["LMM_CROSS_NAME"]
+        cross_prefix = my_env["LMM_CROSS_PREFIX"] + "-"
+        print(f"DDD: Cross-compiling for {architecture}: ARCH={cross_kernel_arch} CROSS_COMPILE={cross_prefix}")
+        my_env["ARCH"] = cross_kernel_arch
+        my_env["DEB_TARGET_ARCH"] = cross_kernel_arch
+        my_env["CROSS_COMPILE"] = cross_prefix
 
     for kernel in kernels:
         # /usr/src corner case
@@ -363,6 +381,9 @@ def build_dkms_in_fakeroot(module):
                             "-v", module_version,
                             "--dkmstree", get_fake_dkms_root_folder(),
                             "-k", kernel  ]
+        if cross_kernel_arch:
+            #dkms_build_command += ["--directive", cross_directive]
+            dkms_build_command += ["-a", cross_kernel_arch]
 
         if not lib_symlink_exists():
             if usr_lib_modules_exists():
