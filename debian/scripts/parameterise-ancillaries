@@ -50,6 +50,11 @@ def build_ancillary(family, package):
         os.path.join("debian", "variants"),
         os.path.join("debian", "scripts", "dkms_helper.py"),
         os.path.join("debian", "scripts", "flavour_finder.py"),
+        os.path.join("debian", "scripts", "auto_install.py"),
+        os.path.join("debian", "scripts", "control_craft.py"),
+        os.path.join("debian", "scripts", "variant_helper.py"),
+        os.path.join("debian", "templates", "postinst.in"),
+        os.path.join("debian", "templates", "postrm.in"),
     ):
         os.makedirs(os.path.dirname(os.path.join(outd, file)), exist_ok=True)
         copy(file, os.path.join(outd, file))

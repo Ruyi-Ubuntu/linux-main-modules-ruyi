@@ -38,6 +38,14 @@ debian/control:
 		-e 's/@KERNEL_META_VERSION@/$(KERNEL_META_VERSION)/g' \
 		-e 's/@ARCHS@/$(TARGET_ARCHS)/g'
 	python3 $(CURDIR)/debian/scripts/dkms-prerequisites.py "$(KERNEL_ABI_VERSION)" "$(KERNEL_MAIN_VERSION)" || true
+	# Generate the unsigned packages
+	python3 $(CURDIR)/debian/scripts/control_craft.py \
+		"$(DEB_HOST_ARCH)" \
+		"$(KERNEL_ABI_VERSION)" \
+		"unsigned"
+	sed <$(DEBIAN)/control.stub.tmp >>debian/control			\
+		-e 's/@ABI@/$(KERNEL_ABI_VERSION)/g'
+	rm ${CURDIR}/debian/control.stub.tmp
 
 
 .PHONY: debian/control
@@ -76,4 +84,5 @@ override_dh_install:
 	mkdir -p $(CURDIR)/debian/$(SOURCE)/opt/linux-main-modules/
 	echo "$(CURDIR)/$(signing_tar)" > $(CURDIR)/debian/$(SOURCE)/install
 	cp ../$(signing_tar) $(CURDIR)/debian/$(SOURCE)/opt/linux-main-modules/
+	$(CURDIR)/debian/scripts/auto_install.py "$(DEB_HOST_ARCH)" "$(VERSION)" "$(KERNEL_ABI_VERSION)" "unsigned"
 	dh_install

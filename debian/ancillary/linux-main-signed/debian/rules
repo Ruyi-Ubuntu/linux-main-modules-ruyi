@@ -27,7 +27,8 @@ debian/control:
 	# XXX: Ale need to figure out if want to use version or ABI
 	python3 $(CURDIR)/debian/scripts/control_craft.py \
 		"$(DEB_HOST_ARCH)" \
-		"$(ABI)"
+		"$(ABI)" \
+		"signed"
 	sed <debian/control.stub.tmp >debian/control		\
 		-e "s/@ABI@/$(ABI)/g"				\
 		-e "s/@UNSIGNED_SRC@/$(UNSIGNED_SRC)/g"	\
@@ -51,7 +52,7 @@ override_dh_auto_build:
 	fi
 
 override_dh_auto_install:
-	$(CURDIR)/debian/scripts/auto_install.py "$(DEB_HOST_ARCH)" "$(UNSIGNED_VER)" "$(ABI)"
+	$(CURDIR)/debian/scripts/auto_install.py "$(DEB_HOST_ARCH)" "$(UNSIGNED_VER)" "$(ABI)" "signed"
 	ls
 	ls debian
 	dh_install

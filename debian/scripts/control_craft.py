@@ -17,14 +17,14 @@ else:
 PACKAGE_BASE_NAME="linux-main-modules"
 
 default_package_template = """
-Package: """ + PACKAGE_BASE_NAME + """-@DKMS_NAME@-@KERNEL_ABI@-@KERNEL_FLAVOUR@
+Package: """ + PACKAGE_BASE_NAME + """-@DKMS_NAME@@UNSIGNED@-@KERNEL_ABI@-@KERNEL_FLAVOUR@
 Build-Profiles: <!stage1>
 Architecture: @ARCHITECTURE@
 Section: kernel
 Priority: optional
 @PROVIDES@
 Depends: ${misc:Depends}, ${shlibs:Depends}, kmod, linux-image-@ABI@-@KERNEL_FLAVOUR@ | linux-image-unsigned-@ABI@-@KERNEL_FLAVOUR@
-Description: Signed @DKMS_NAME@ module for @KERNEL_ABI@
+Description: @SIGNED_STATUS@ @DKMS_NAME@ module for @KERNEL_ABI@
  This package contains the signed @DKMS_NAME@ modules.
  .
  You likely do not want to install this package directly, Instead, install
@@ -33,12 +33,12 @@ Description: Signed @DKMS_NAME@ module for @KERNEL_ABI@
 """
 
 default_variant_package_template = """
-Package: linux-modules-@DKMS_NAME@-@KERNEL_FLAVOUR@@KERNEL_VARIANT@
+Package: linux-modules-@DKMS_NAME@@UNSIGNED@-@KERNEL_FLAVOUR@@KERNEL_VARIANT@
 Build-Profiles: <!stage1>
 Architecture: @ARCHITECTURE@
 Section: kernel
 Priority: optional
-Depends: ${misc:Depends}, ${shlibs:Depends}, kmod, """ + PACKAGE_BASE_NAME + """-@DKMS_NAME@-@KERNEL_ABI@-@KERNEL_FLAVOUR@
+Depends: ${misc:Depends}, ${shlibs:Depends}, kmod, """ + PACKAGE_BASE_NAME + """-@DKMS_NAME@@UNSIGNED@-@KERNEL_ABI@-@KERNEL_FLAVOUR@
 Description: Extra drivers for @DKMS_NAME@ for the @KERNEL_FLAVOUR@ flavour
  Install extra signed @DKMS_NAME@ modules compatible with the @KERNEL_FLAVOUR@ flavour
 """
@@ -54,7 +54,7 @@ Description: Extra drivers for @DKMS_OLD_NAME@-@KERNEL_FLAVOUR@@KERNEL_VARIANT@
 """
 
 
-def create_new_variant_package(dkms_name:str, archs:str, kernel_flavour:str, kernel_abi:str):
+def create_new_variant_package(dkms_name:str, archs:str, kernel_flavour:str, kernel_abi:str, unsigned_prefix:str):
     control_variants=""
     variants = find_variants()
     for variant in variants:
@@ -64,6 +64,7 @@ def create_new_variant_package(dkms_name:str, archs:str, kernel_flavour:str, ker
         template = re.sub("@KERNEL_FLAVOUR@", kernel_flavour, template)
         template = re.sub("@ARCHITECTURE@", archs, template)
         template = re.sub("@KERNEL_VARIANT@", variant, template)
+        template = re.sub("@UNSIGNED@", unsigned_prefix, template)
         template += "\n"
         control_variants+=template
     return control_variants
@@ -79,7 +80,14 @@ def intersect_archs(kernel_archs: List[str], dkms_archs: List[str]):
 
 
 def create_new_packages(modules, kernel_arch: str,
-                        kernel_abi: str, kernel_flavours: List[str]):
+                        kernel_abi: str, kernel_flavours: List[str],
+                        is_signed: bool):
+    if not is_signed:
+        unsigned_prefix = "-unsigned"
+        signed_status = "Unsigned"
+    else:
+        unsigned_prefix = ""
+        signed_status = "Signed"
     full_template = "\n"
     for kernel_flavour in kernel_flavours:
         for item in modules.items:
@@ -95,6 +103,8 @@ def create_new_packages(modules, kernel_arch: str,
             template = re.sub("@KERNEL_ABI@", kernel_abi, template)
             template = re.sub("@KERNEL_FLAVOUR@", kernel_flavour.flavour, template)
             template = re.sub("@ARCHITECTURE@", archs, template)
+            template = re.sub("@UNSIGNED@", unsigned_prefix, template)
+            template = re.sub("@SIGNED_STATUS@", signed_status, template)
             if len(item.rprovides) > 0:
                 template = re.sub("@PROVIDES@", "Provides: " + item.getProvidedDkms(), template)
             else:
@@ -105,7 +115,8 @@ def create_new_packages(modules, kernel_arch: str,
             full_template += create_new_variant_package(item.modulename,
                                                         archs,
                                                         kernel_flavour.flavour,
-                                                        kernel_abi)
+                                                        kernel_abi,
+                                                        unsigned_prefix)
             ####################################################################
     return full_template
 
@@ -135,25 +146,31 @@ def create_transitional_packages(full_template: str, modules, kernel_arch: str,
     return full_template
 
 
-def create_temporary_stub_file(pkgs_dkms_modules: str):
+def create_temporary_stub_file(pkgs_dkms_modules: str, is_signed: bool):
     control_file = ""
-    with open("debian/control.stub", "r") as src:
-        control_file = src.read()
+    if is_signed:
+        with open("debian/control.stub", "r") as src:
+            control_file = src.read()
     with open("debian/control.stub.tmp", "w") as dst:
         control_file += pkgs_dkms_modules
         dst.write(control_file)
 
 
 # ------------------------------------------------------------
-(arg_deb_host_arch, arg_kernel_abi) = sys.argv[1:]
+(arg_deb_host_arch, arg_kernel_abi, sign_mode) = sys.argv[1:]
 modules = dkms_modules()
 
 modules.parse_dkms_version_file()
 
 flavours = find_flavours()
+if sign_mode == "unsigned":
+    is_signed = False
+else:
+    is_signed = True
 pkgs_dkms_modules = create_new_packages(modules, arg_deb_host_arch,
-                                        arg_kernel_abi, flavours)
-pkgs_dkms_modules = create_transitional_packages(pkgs_dkms_modules,
-                                        modules, arg_deb_host_arch,
-                                        arg_kernel_abi, flavours)
-create_temporary_stub_file(pkgs_dkms_modules)
+                                        arg_kernel_abi, flavours, is_signed)
+if is_signed:
+    pkgs_dkms_modules = create_transitional_packages(pkgs_dkms_modules,
+                                            modules, arg_deb_host_arch,
+                                            arg_kernel_abi, flavours)
+create_temporary_stub_file(pkgs_dkms_modules, is_signed)

@@ -1,9 +1,17 @@
 #!/bin/bash
 
+###############################################################################
+#            This script needs to be run one level up from linux-lmm          #
+#            Artifacts will be output as ROOT, will modify some of the        #
+#            git repositories as root-owned as well, so be careful when       #
+#            using it                                                         #
+###############################################################################
+
 set -euo pipefail
 
 BUILDARCH="${1:-amd64}"
 CHROOT="${2:-}"
+SIGNED_STATUS="${3:-unsigned}" # pass signed to generate the fake-signed .debs
 
 # Standard way of binary building a package.
 function runbuildNewPackage()
@@ -272,7 +280,10 @@ if [ -n "$CHROOT" ]; then
         fi
         rm -rf /var/lib/apt/lists/*
         apt-get -y update
-        apt install -y python3 fakeroot debhelper openssl xxd
+        apt install -y python3 fakeroot debhelper openssl xxd ca-certificates
+        for deb in ${HEADERS_TO_INSTALL}; do
+            dpkg -i --force-architecture --force-depends "\$deb"
+        done
         (cd ./linux-lmm && fakeroot debian/rules clean)
         apt-get -y -q=1 build-dep ./linux-lmm
         if [ "$BUILDARCH" != "$native_arch" ]; then
@@ -282,9 +293,6 @@ if [ -n "$CHROOT" ]; then
                 apt-get -y install libdw1:$BUILDARCH libelf1:$BUILDARCH libssl3:$BUILDARCH zlib1g:$BUILDARCH
             fi
         fi
-        for deb in ${HEADERS_TO_INSTALL}; do
-            dpkg -i --force-architecture --force-depends "\$deb"
-        done
         if [ "$BUILDARCH" != "$native_arch" ]; then
             # I think we need this because in resolute the qemu name has changed, meh
             ln -s /usr/bin/qemu-${CROSS_BIN} /usr/bin/qemu-${CROSS_BIN}-static
@@ -301,8 +309,7 @@ if [ -n "$CHROOT" ]; then
                 > /usr/src/linux-headers-${KERNEL_ABI_VERSION}/arch/${CROSS_NAME}/Makefile
         fi
 EOF
-
-    sudo schroot -u root -r -c "$schroot_session" -d "$(pwd)" -- bash "$(realpath "$0")" "$BUILDARCH"
+    sudo schroot -u root -r -c "$schroot_session" -d "$(pwd)" -- bash "$(realpath "$0")" "$BUILDARCH" "" "$SIGNED_STATUS"
     exit $?
 fi
 
@@ -356,26 +363,29 @@ fi
 
 # Build the modules and move artifacts to OUTPUT
 runbuildNewPackage linux-lmm
-$SUDO dpkg -i --force-architecture linux-main-modules_${KERNEL_MAIN_VERSION}_*.deb
-mv linux-main-modules_${KERNEL_MAIN_VERSION}_*.* OUTPUT/
+mv linux-main-modules*${KERNEL_MAIN_VERSION}*.* OUTPUT/
+mv linux-modules*${KERNEL_MAIN_VERSION}*.* OUTPUT/
+if [ ${SIGNED_STATUS} == "signed" ] ; then
+	$SUDO dpkg -i --force-architecture OUTPUT/linux-main-modules_${KERNEL_MAIN_VERSION}_*.deb
 
-# Build the ancillary to make linux-main-signed happy, move artifacts to OUTPUT
-runbuildNewPackage linux-lmm/debian/ancillary/linux-main-generate
-mv linux-lmm/debian/ancillary/linux-main-generate_* .
-$SUDO dpkg -i --force-architecture linux-main-generate_${KERNEL_MAIN_VERSION}_*.deb
-mv linux-main-generate_${KERNEL_MAIN_VERSION}_*.* OUTPUT/
+	# Build the ancillary to make linux-main-signed happy, move artifacts to OUTPUT
+	runbuildNewPackage linux-lmm/debian/ancillary/linux-main-generate
+	mv linux-lmm/debian/ancillary/linux-main-generate_* .
+	$SUDO dpkg -i --force-architecture linux-main-generate_${KERNEL_MAIN_VERSION}_*.deb
+	mv linux-main-generate_${KERNEL_MAIN_VERSION}_*.* OUTPUT/
 
-# Sign the modules, we can either generate a random signing key, or use the
-#  an embedded one; probably for CBD the latter is a better option.
-#generateRandomSigningKey
-exportSigningKey
-signTarball
-runbuildNewPackage linux-lmm/debian/ancillary/linux-main-signed
+	# Sign the modules, we can either generate a random signing key, or use the
+	#  an embedded one; probably for CBD the latter is a better option.
+	#generateRandomSigningKey
+	exportSigningKey
+	signTarball
+	runbuildNewPackage linux-lmm/debian/ancillary/linux-main-signed
 
-# Output everything up so CBD can export it as a single artifact
-mv linux-lmm/debian/ancillary/linux-main-signed_* OUTPUT/
-mv linux-lmm/debian/ancillary/*.deb OUTPUT/
-# Output the public key as well, so they can be used to resign or to add to MOK in
-#  case secure boot is enabled.
-mv public_key.der OUTPUT/
-rm private_key.priv
+	# Output everything up so CBD can export it as a single artifact
+	mv linux-lmm/debian/ancillary/linux-main-signed_* OUTPUT/
+	mv linux-lmm/debian/ancillary/*.deb OUTPUT/
+	# Output the public key as well, so they can be used to resign or to add to MOK in
+	#  case secure boot is enabled.
+	mv public_key.der OUTPUT/
+	rm private_key.priv
+fi
