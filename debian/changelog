@@ -1,3 +1,12 @@
+linux-main-modules-riscv (7.0.0-28.28.1) resolute; urgency=medium
+
+  * Main version: 7.0.0-28.28.1
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] debian/tracking-bug -- resync from main package
+
+ -- Sarah Emery <sarah.emery@canonical.com>  Mon, 29 Jun 2026 19:07:29 +0200
+
 linux-main-modules-riscv (7.0.0-27.27.1) resolute; urgency=medium
 
   * Main version: 7.0.0-27.27.1
