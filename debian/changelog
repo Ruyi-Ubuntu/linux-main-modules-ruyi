@@ -1,3 +1,19 @@
+linux-main-modules-riscv (7.0.0-29.29.1) resolute; urgency=medium
+
+  * Main version: 7.0.0-29.29.1
+
+  * Packaging resync (LP: #1786013)
+    - [Packaging] debian/tracking-bug -- resync from main package
+
+  * Miscellaneous Ubuntu changes
+    - [Packaging]: lmm: Add a symbol to use a local signed.tar.gz file
+    - [Packaging]: lmm: Allow DKMS to be cross compiled
+    - [Packaging]: lmm: Add a method to create unsigned packages
+    - [Packaging]: lmm: Install DKMSs in ubuntu/dkms
+    - [Packaging]: Update manifest file with new patches
+
+ -- Benjamin Wheeler <benjamin.wheeler@canonical.com>  Fri, 24 Jul 2026 14:28:39 -0400
+
 linux-main-modules-riscv (7.0.0-28.28.1) resolute; urgency=medium
 
   * Main version: 7.0.0-28.28.1
