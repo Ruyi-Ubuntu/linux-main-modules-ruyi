@@ -1,0 +1,4 @@
+e7b57918e4f036abc9fe9ed658a69d9075901fc78ff8d409c6d1f652875cd95b 2026-07-24_14:28:33 UBUNTU: [Packaging]: lmm: Add a symbol to use a local signed.tar.gz file
+cfb0da0dab45dc9343ab1bba3d8747ba14e6e9d395e955f7db8faa5d60233ec6 2026-07-24_14:28:33 UBUNTU: [Packaging]: lmm: Allow DKMS to be cross compiled
+47ab71dae74f959e100c1e9a58505263bf464991eaa3cc934b546e90c804b443 2026-07-24_14:28:33 UBUNTU: [Packaging]: lmm: Add a method to create unsigned packages
+2149427a68ec51c0719331aca1de9773bc1e32658c4835c21cee51605c647905 2026-07-24_14:28:33 UBUNTU: [Packaging]: lmm: Install DKMSs in ubuntu/dkms
