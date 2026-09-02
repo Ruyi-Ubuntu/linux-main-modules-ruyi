@@ -3,6 +3,7 @@ linux-main-modules-ruyi (7.0.0-31.31.1ruyi1) resolute; urgency=medium
   * Rename source package for linux-ruyi
   * Use the ruyi flavour
   * Update Vcs-Git for linux-main-modules-ruyi
+  * Let unsigned modules provide the corresponding signed package name
 
  -- Han Gao <rabenda.cn@gmail.com>  Thu, 03 Sep 2026 03:20:33 +0800
 

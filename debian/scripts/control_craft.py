@@ -105,8 +105,15 @@ def create_new_packages(modules, kernel_arch: str,
             template = re.sub("@ARCHITECTURE@", archs, template)
             template = re.sub("@UNSIGNED@", unsigned_prefix, template)
             template = re.sub("@SIGNED_STATUS@", signed_status, template)
-            if len(item.rprovides) > 0:
-                template = re.sub("@PROVIDES@", "Provides: " + item.getProvidedDkms(), template)
+            provides = item.getProvidedDkms()
+            if not is_signed:
+                signed_package = (PACKAGE_BASE_NAME + "-" + item.modulename + "-" +
+                                  kernel_abi + "-" + kernel_flavour.flavour)
+                if provides:
+                    provides += ", "
+                provides += signed_package
+            if provides:
+                template = re.sub("@PROVIDES@", "Provides: " + provides, template)
             else:
                 template = re.sub("@PROVIDES@\n", "", template)
             template += "\n"
