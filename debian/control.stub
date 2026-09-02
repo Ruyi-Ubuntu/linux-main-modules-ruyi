@@ -15,11 +15,10 @@ Build-Depends-Arch:
  wget,
  zstd,
 @DKMS-DEPENDS@
-Vcs-Git: git://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-main-modules-riscv/+git/@SERIES@
+Vcs-Git: git://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-main-modules-ruyi/+git/@SERIES@
 
 Package: @SRCPKGNAME@
 Architecture: @ARCHS@
 Section: devel
 Priority: optional
 Description: Build interlock package. You do not want to install this package.
-
